@@ -177,6 +177,46 @@ body, html, #root {
   line-height: 1.4;
 }
 
+.download-message a:hover {
+  color: #22d3ee; /* lighter cyan on hover */
+  text-decoration: none;
+}
+
+/* Progress Bar Container */
+.progress-bar-container {
+  width: 100%;
+  background-color: #1e293b; /* matches your header bg */
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+  height: 18px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Progress Bar Fill */
+.progress-bar-fill {
+  height: 100%;
+  background-color: #14b8a6; /* teal green */
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.spinner {
+  margin: 1rem auto;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #14b8a6;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .app-main {
     flex-direction: column;

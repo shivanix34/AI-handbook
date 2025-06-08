@@ -5,6 +5,7 @@ function FileUploader() {
   const [file, setFile] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -17,17 +18,27 @@ function FileUploader() {
     formData.append('file', file);
 
     setMessage('Uploading and analyzing...');
+    setUploadProgress(0);
+
     try {
-      const response = await axios.post('http://127.0.0.1:8000/analyze/', formData, {
+      const response = await axios.post('https://ai-handbook.onrender.com/analyze/', formData, {
         responseType: 'blob',
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+        },
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       setDownloadUrl(url);
       setMessage('Analysis complete. Download the result below.');
+      setUploadProgress(0);
     } catch (error) {
       console.error(error);
       setMessage('Error during analysis');
+      setUploadProgress(0);
     }
   };
 
@@ -37,6 +48,12 @@ function FileUploader() {
       <button onClick={handleUpload} className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
         Upload & Analyze
       </button>
+      {uploadProgress > 0 && (
+        <div style={{ marginTop: '10px' }}>
+          <progress value={uploadProgress} max="100" />
+          <span> {uploadProgress}%</span>
+        </div>
+      )}
       <p>{message}</p>
       {downloadUrl && (
         <a href={downloadUrl} download="final_enriched_leads.csv" className="text-blue-600 underline">

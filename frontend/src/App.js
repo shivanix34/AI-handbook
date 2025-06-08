@@ -30,9 +30,9 @@ function App() {
 
   try {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/analyze/`, {
-      method: "POST",
-      body: formData,
-    })
+    method: "POST",
+    body: formData,
+  })
 
     if (!response.ok) {
       throw new Error(`Server error: ${response.statusText}`);
