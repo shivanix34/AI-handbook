@@ -29,7 +29,7 @@ function App() {
   formData.append("file", file);
 
   try {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/analyze/`, {
+    fetch(`https://ai-handbook.onrender.com/analyze/`, {
     method: "POST",
     body: formData,
   })
