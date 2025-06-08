@@ -6,7 +6,7 @@ import uuid
 import shutil
 import pathlib
 
-from main_leadgen import run_full_leadgen_batch
+from backend.main_leadgen import run_full_leadgen_batch
 
 app = FastAPI()
 
