@@ -1,6 +1,6 @@
 import pandas as pd
-from preprocess_utils import preprocess_and_score
-from lead_utils import enrich_lead
+from backend.preprocess_utils import preprocess_and_score
+from backend.lead_utils import enrich_lead
 from tqdm import tqdm
 import os
 

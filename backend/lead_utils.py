@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from dotenv import load_dotenv
 from typing import Dict
-from call_api import call_azure_openai
+from backend.call_api import call_azure_openai
 
 
 load_dotenv()
