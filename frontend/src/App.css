@@ -1,0 +1,190 @@
+/* Basic Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Global Background */
+body, html, #root {
+  height: 100%;
+  background-color: #0f172a; /* dark navy */
+  color: #f8fafc;
+}
+
+/* Container for the whole app */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+  padding: 1.2rem 2rem;
+  background-color: #1e293b;
+  color: #2dd4bf; /* Dull Teal Green */
+  font-weight: 600;
+  font-size: 1.75rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+/* Main content area */
+.app-main {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Card */
+.upload-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Title */
+.upload-card h2 {
+  margin-bottom: 1.25rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #2dd4bf; /* Dull Teal Green */ /* teal accent */
+}
+
+/* File input */
+.file-input {
+  display: block;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background-color: #0f172a;
+  color: #f8fafc;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Upload Button */
+.upload-button {
+  background-color: #14b8a6; /* teal green */
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: #0d9488;
+}
+
+.upload-button:disabled {
+  background-color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Error message */
+.error-message {
+  margin-top: 1rem;
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* Download link */
+.download-message {
+  margin-top: 1.5rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.download-message a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+/* Footer */
+.app-footer {
+  padding: 1rem 2rem;
+  background-color: #1e293b;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  text-align: center;
+  border-top: 1px solid #334155;
+}
+
+.left-panel {
+  background: rgba(255, 255, 255, 0.05); /* translucent box */
+  border-radius: 16px;
+  padding: 2rem;
+  width: 500px;
+  margin-right: 2rem;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px); /* optional: adds a frosted-glass effect */
+}
+
+.info-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  align-items: flex-start;
+}
+
+.info-icon {
+  background-color: #0f2b45;
+  color: #14b8a6;
+  font-weight: 700; /* <-- make number bold */
+  font-size: 1rem;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+}
+
+.info-desc {
+  font-size: 0.9rem;
+  color: #cbd5e1; /* Light grey */
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .left-panel {
+    margin-right: 0;
+    margin-bottom: 2rem;
+  }
+}
