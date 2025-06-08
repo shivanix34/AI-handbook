@@ -29,7 +29,7 @@ function App() {
   formData.append("file", file);
 
   try {
-    fetch(`https://ai-handbook.onrender.com/analyze/`, {
+    const response = await fetch("https://your-backend-domain.com/analyze/", {
     method: "POST",
     body: formData,
   })
