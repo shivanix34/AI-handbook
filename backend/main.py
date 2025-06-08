@@ -1,15 +1,17 @@
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
 import shutil
+import pathlib
+
 from main_leadgen import run_full_leadgen_batch
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # React dev server
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -20,7 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = "../data"  # Make sure this folder exists in your project root
+BASE_DIR = pathlib.Path(__file__).parent.resolve()
+UPLOAD_DIR = BASE_DIR / "data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.get("/")
@@ -32,29 +35,32 @@ def health_check():
     return {"status": "ok", "message": "API is healthy"}
 
 @app.post("/analyze/")
-async def analyze(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
-    input_path = os.path.join(UPLOAD_DIR, f"temp_{uuid.uuid4().hex}.csv")
-    output_path = os.path.join(UPLOAD_DIR, f"output_{uuid.uuid4().hex}.csv")
+async def analyze(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
+    input_path = UPLOAD_DIR / f"temp_{uuid.uuid4().hex}.csv"
+    output_path = UPLOAD_DIR / f"output_{uuid.uuid4().hex}.csv"
 
-    # Save uploaded file
     with open(input_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Run your processing function
-    run_full_leadgen_batch(input_path, output_path, chunksize=100)
+    try:
+        run_full_leadgen_batch(str(input_path), str(output_path), chunksize=100)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Processing error: {e}")
 
-    # Schedule cleanup of temp files after response
     def cleanup_files():
         try:
-            if os.path.exists(input_path):
-                os.remove(input_path)
-            if os.path.exists(output_path):
-                os.remove(output_path)
+            if input_path.exists():
+                input_path.unlink()
+            if output_path.exists():
+                output_path.unlink()
         except Exception as e:
             print(f"Cleanup error: {e}")
 
-    if background_tasks:
-        background_tasks.add_task(cleanup_files)
+    background_tasks.add_task(cleanup_files)
 
-    # Return the output CSV file as response
-    return FileResponse(output_path, media_type='text/csv', filename='final_enriched_leads.csv')
+    return FileResponse(str(output_path), media_type='text/csv', filename='final_enriched_leads.csv')
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
