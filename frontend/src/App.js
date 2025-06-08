@@ -29,10 +29,10 @@ function App() {
   formData.append("file", file);
 
   try {
-    const response = await fetch("http://localhost:8000/analyze/", {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/analyze/`, {
       method: "POST",
       body: formData,
-    });
+    })
 
     if (!response.ok) {
       throw new Error(`Server error: ${response.statusText}`);

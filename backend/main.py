@@ -11,7 +11,8 @@ from backend.main_leadgen import run_full_leadgen_batch
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "http://localhost:3000",  # for local dev
+    "https://ai-handbook.onrender.com"  # deployed frontend
 ]
 
 app.add_middleware(
