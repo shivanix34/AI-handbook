@@ -1,0 +1,4 @@
+.env
+VENV
+data/clean_data.csv
+src/__pycache__/
