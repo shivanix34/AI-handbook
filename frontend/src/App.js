@@ -16,7 +16,7 @@ function App() {
     setError("");
   };
 
-  const handleUpload = async () => {
+const handleUpload = async () => {
   if (!file) {
     setError("Please select a CSV file first.");
     return;
@@ -29,35 +29,28 @@ function App() {
   formData.append("file", file);
 
   try {
-    const response = await fetch("https://your-backend-domain.com/analyze/", {
-    method: "POST",
-    body: formData,
-  })
+    await fetch("https://ai-handbook.onrender.com/health");
+
+    const response = await fetch("https://ai-handbook.onrender.com/analyze/", {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
       throw new Error(`Server error: ${response.statusText}`);
     }
 
-    // Get blob from response
     const blob = await response.blob();
-
-    // Create a temporary URL for blob
     const url = window.URL.createObjectURL(blob);
 
-    // Create a temporary anchor element
     const a = document.createElement("a");
     a.href = url;
     a.download = "final_enriched_leads.csv";
-
-    // Append anchor to body, trigger click and remove
     document.body.appendChild(a);
     a.click();
     a.remove();
-
-    // Release the URL object
     window.URL.revokeObjectURL(url);
 
-    // Reset file input and state here:
     setFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;

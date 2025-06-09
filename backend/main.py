@@ -11,8 +11,9 @@ from backend.main_leadgen import run_full_leadgen_batch
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # for local dev
-    "https://ai-handbook.onrender.com"  # deployed frontend
+    "http://localhost:3000", 
+    "https://ai-handbook.onrender.com", 
+    "https://leadgen-site.onrender.com", 
 ]
 
 app.add_middleware(
@@ -22,6 +23,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 UPLOAD_DIR = BASE_DIR / "data"
