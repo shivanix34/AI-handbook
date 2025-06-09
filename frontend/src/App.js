@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 
 function App() {
@@ -6,8 +6,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [error, setError] = useState("");
-  const [progress, setProgress] = useState(0); // <-- Added for progress tracking
-  const [taskId, setTaskId] = useState(null);  // <-- Store task ID
+  const [progress, setProgress] = useState(0);
+  const [taskId, setTaskId] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -24,11 +24,13 @@ function App() {
       try {
         const res = await fetch(`https://ai-handbook.onrender.com/progress/${taskId}`);
         const data = await res.json();
+
         if (data.percentage !== undefined) {
           setProgress(data.percentage);
+
           if (data.percentage >= 100) {
             clearInterval(interval);
-            // Now download the file
+
             const downloadRes = await fetch(`https://ai-handbook.onrender.com/download/${taskId}`);
             if (!downloadRes.ok) throw new Error("Download failed");
 
@@ -42,10 +44,13 @@ function App() {
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
+
             setFile(null);
             if (fileInputRef.current) {
               fileInputRef.current.value = null;
             }
+
+            setLoading(false);
             setDownloadUrl(url);
           }
         } else if (data.error) {
@@ -58,7 +63,7 @@ function App() {
         setError("Progress polling error: " + err.message);
         setLoading(false);
       }
-    }, 3000); // poll every 3 seconds
+    }, 3000);
   };
 
   const handleUpload = async () => {
@@ -66,6 +71,7 @@ function App() {
       setError("Please select a CSV file first.");
       return;
     }
+
     setLoading(true);
     setError("");
     setDownloadUrl(null);
@@ -90,7 +96,7 @@ function App() {
       const result = await response.json();
       const taskId = result.task_id;
       setTaskId(taskId);
-      pollProgress(taskId); // start polling
+      pollProgress(taskId);
 
     } catch (err) {
       setError("Upload failed: " + err.message);
@@ -167,12 +173,14 @@ function App() {
 
           {error && <p className="error-message">{error}</p>}
 
-          {downloadUrl && (
+          {!loading && progress === 100 && (
             <p className="download-message">
               Processing complete!{" "}
-              <a href={downloadUrl} download="final_enriched_leads.csv">
-                Download Enriched CSV
-              </a>
+              {downloadUrl && (
+                <a href={downloadUrl} download="final_enriched_leads.csv">
+                  Download Enriched CSV
+                </a>
+              )}
             </p>
           )}
         </div>
