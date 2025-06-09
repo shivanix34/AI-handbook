@@ -4,15 +4,20 @@ from backend.lead_utils import enrich_lead
 from tqdm import tqdm
 import os
 
-def run_full_leadgen_batch(input_csv: str, output_csv: str, chunksize: int = 100):
+def run_full_leadgen_batch(input_csv: str, output_csv: str, chunksize: int = 100, progress_callback=None):
 
     if os.path.exists(output_csv):
         os.remove(output_csv)
     
+    # Count total rows for progress calculation
+    total_rows = sum(1 for _ in open(input_csv)) - 1  # subtract header
+    total_chunks = (total_rows // chunksize) + 1
+    
     chunk_iter = pd.read_csv(input_csv, chunksize=chunksize)
     
     for i, chunk in enumerate(chunk_iter):
-        print(f"Processing chunk {i + 1} ...")
+        if progress_callback:
+            progress_callback(int((i / total_chunks) * 100))  # progress before chunk
         
         chunk_scored = preprocess_and_score(chunk)
         
@@ -30,8 +35,12 @@ def run_full_leadgen_batch(input_csv: str, output_csv: str, chunksize: int = 100
         
         write_header = (i == 0)
         chunk_scored.to_csv(output_csv, mode='a', index=False, header=write_header)
+        
+        if progress_callback:
+            progress_callback(int(((i + 1) / total_chunks) * 100))  # progress after chunk
     
-    print(f"All chunks processed. Final output saved to {output_csv}")
+    if progress_callback:
+        progress_callback(100)  # done
 
 if __name__ == "__main__":
     input_csv = "../data/input.csv"

@@ -6,61 +6,97 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0); // <-- Added for progress tracking
+  const [taskId, setTaskId] = useState(null);  // <-- Store task ID
 
-  // Add this line:
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setDownloadUrl(null);
     setError("");
+    setProgress(0);
+    setTaskId(null);
   };
 
-const handleUpload = async () => {
-  if (!file) {
-    setError("Please select a CSV file first.");
-    return;
-  }
-  setLoading(true);
-  setError("");
-  setDownloadUrl(null);
+  const pollProgress = async (taskId) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`https://ai-handbook.onrender.com/progress/${taskId}`);
+        const data = await res.json();
+        if (data.percentage !== undefined) {
+          setProgress(data.percentage);
+          if (data.percentage >= 100) {
+            clearInterval(interval);
+            // Now download the file
+            const downloadRes = await fetch(`https://ai-handbook.onrender.com/download/${taskId}`);
+            if (!downloadRes.ok) throw new Error("Download failed");
 
-  const formData = new FormData();
-  formData.append("file", file);
+            const blob = await downloadRes.blob();
+            const url = window.URL.createObjectURL(blob);
 
-  try {
-    await fetch("https://ai-handbook.onrender.com/health");
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "final_enriched_leads.csv";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            setFile(null);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = null;
+            }
+            setDownloadUrl(url);
+          }
+        } else if (data.error) {
+          clearInterval(interval);
+          setError("Processing failed.");
+          setLoading(false);
+        }
+      } catch (err) {
+        clearInterval(interval);
+        setError("Progress polling error: " + err.message);
+        setLoading(false);
+      }
+    }, 3000); // poll every 3 seconds
+  };
 
-    const response = await fetch("https://ai-handbook.onrender.com/analyze/", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server error: ${response.statusText}`);
+  const handleUpload = async () => {
+    if (!file) {
+      setError("Please select a CSV file first.");
+      return;
     }
+    setLoading(true);
+    setError("");
+    setDownloadUrl(null);
+    setProgress(0);
+    setTaskId(null);
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "final_enriched_leads.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+    try {
+      await fetch("https://ai-handbook.onrender.com/health");
 
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null;
+      const response = await fetch("https://ai-handbook.onrender.com/analyze/", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const taskId = result.task_id;
+      setTaskId(taskId);
+      pollProgress(taskId); // start polling
+
+    } catch (err) {
+      setError("Upload failed: " + err.message);
+      setLoading(false);
     }
-  } catch (err) {
-    setError("Upload failed: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="app-container">
@@ -105,7 +141,6 @@ const handleUpload = async () => {
           </div>
         </div>
 
-
         <div className="upload-card">
           <h2>Upload Your Lead List CSV</h2>
 
@@ -115,13 +150,20 @@ const handleUpload = async () => {
               accept=".csv"
               onChange={handleFileChange}
               className="file-input"
-              ref={fileInputRef}   // <-- Add this line
+              ref={fileInputRef}
             />
           </div>
 
           <button onClick={handleUpload} disabled={loading} className="upload-button">
             {loading ? "Processing..." : "Upload & Analyze"}
           </button>
+
+          {progress > 0 && progress < 100 && (
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+              <p className="progress-text">{progress}%</p>
+            </div>
+          )}
 
           {error && <p className="error-message">{error}</p>}
 
