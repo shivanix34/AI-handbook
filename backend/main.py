@@ -10,15 +10,10 @@ from backend.main_leadgen import run_full_leadgen_batch
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000", 
-    "https://ai-handbook.onrender.com", 
-    "https://leadgen-site.onrender.com", 
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
